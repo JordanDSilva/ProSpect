@@ -613,24 +613,35 @@ ProSpectSEDlike = function(parm = c(8, 9, 10, 10, 0, -0.5, 0.2), Data) {
         }
       }
 
-      if(is.null(Data$arglist$ref)){
-        #Fall back to the ProSpectSED defaults for any cosmology not supplied
-        H0_use = if(is.null(Data$arglist$H0)) 67.8 else Data$arglist$H0
-        OmegaM_use = if(is.null(Data$arglist$OmegaM)) 0.308 else Data$arglist$OmegaM
-        OmegaL_use = if(is.null(Data$arglist$OmegaL)) 1 - OmegaM_use else Data$arglist$OmegaL
-
-        agemax_new = (celestial::cosdistUniAgeAtz(ztest, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use))*1e9 ##need to be in years
-        if(!is.null(z_genSF)){
-          agemax_new = (celestial::cosdistUniAgeAtz(ztest, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use) - celestial::cosdistUniAgeAtz(z_genSF, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use))*1e9 ##need to be in years
+      if(is.null(Data$cosmofast)){
+        if(is.null(Data$arglist$ref)){
+          if(!is.null(z_genSF)){
+            agemax_new = (celestial::cosdistUniAgeAtz(ztest, H0 = Data$arglist$HO, OmegaM = Data$arglist$OmegaM, OmegaL = Data$arglist$OmegaL) - 
+            celestial::cosdistUniAgeAtz(z_genSF, H0 = Data$arglist$HO, OmegaM = Data$arglist$OmegaM, OmegaL = Data$arglist$OmegaL))*1e9 ##need to be in years
+          }else{
+            agemax_new = (celestial::cosdistUniAgeAtz(ztest, H0 = Data$arglist$HO, OmegaM = Data$arglist$OmegaM, OmegaL = Data$arglist$OmegaL))*1e9 ##need to be in years
+          }
+          LumDist_Mpc_new = celestial::cosdistLumDist(z = ztest, H0 = Data$arglist$HO, OmegaM = Data$arglist$OmegaM, OmegaL = Data$arglist$OmegaL)
+        }else{
+          if(!is.null(z_genSF)){
+            agemax_new = (celestial::cosdistUniAgeAtz(ztest, ref = Data$arglist$ref) - 
+            celestial::cosdistUniAgeAtz(z_genSF, ref = Data$arglist$ref))*1e9 ##need to be in years
+          }else{
+            agemax_new = (celestial::cosdistUniAgeAtz(ztest, ref = Data$arglist$ref))*1e9 ##need to be in years
+          }
+          LumDist_Mpc_new = celestial::cosdistLumDist(z = ztest, ref = Data$arglist$ref)
         }
-        LumDist_Mpc_new = celestial::cosdistLumDist(z = ztest, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use)
+      }else if (is.function(Data$cosmofast$UniAgeAtz) & is.function(Data$cosmofast$LumDist)){
+        if(!is.null(z_genSF)){
+            agemax_new = (cosmofast$UniAgeAtz(ztest) - cosmofast$UniAgeAtz(z_genSF))*1e9 ##need to be in years
+          }else{
+            agemax_new = cosmofast$UniAgeAtz(ztest)
+          }
+        LumDist_Mpc_new = cosmofast$LumDist(ztest)
       }else{
-        agemax_new = (celestial::cosdistUniAgeAtz(ztest, ref = Data$arglist$ref))*1e9 ##need to be in years
-        if(!is.null(z_genSF)){
-          agemax_new = (celestial::cosdistUniAgeAtz(ztest, ref = Data$arglist$ref) - celestial::cosdistUniAgeAtz(z_genSF, ref = Data$arglist$ref))*1e9 ##need to be in years
-        }
-        LumDist_Mpc_new = celestial::cosdistLumDist(z = ztest, ref = Data$arglist$ref)
+        stop("Wrong self-defined cosmology tables")
       }
+      
 
       magemax_new = agemax_new/1e9 ## need to be in Gyr
       Zagemax_new = agemax_new/1e9
