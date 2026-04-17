@@ -624,13 +624,6 @@ ProSpectSEDlike = function(parm = c(8, 9, 10, 10, 0, -0.5, 0.2), Data) {
           agemax_new = (celestial::cosdistUniAgeAtz(ztest, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use) - celestial::cosdistUniAgeAtz(z_genSF, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use))*1e9 ##need to be in years
         }
         LumDist_Mpc_new = celestial::cosdistLumDist(z = ztest, H0 = H0_use, OmegaM = OmegaM_use, OmegaL = OmegaL_use)
-      }else{
-        agemax_new = (celestial::cosdistUniAgeAtz(ztest, ref = Data$arglist$ref))*1e9 ##need to be in years
-        if(!is.null(z_genSF)){
-          agemax_new = (celestial::cosdistUniAgeAtz(ztest, ref = Data$arglist$ref) - celestial::cosdistUniAgeAtz(z_genSF, ref = Data$arglist$ref))*1e9 ##need to be in years
-        }
-        LumDist_Mpc_new = celestial::cosdistLumDist(z = ztest, ref = Data$arglist$ref)
-      }
 
       magemax_new = agemax_new/1e9 ## need to be in Gyr
       Zagemax_new = agemax_new/1e9
