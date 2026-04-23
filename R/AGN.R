@@ -133,18 +133,19 @@ LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = 
   lrd_spectrum = (colSums(tempmat * weights))
   
   lrd_spectrum_slope = -4
-  lrd_tail_norm = lrd_spectrum[length(lrd_spectrum)]
+  lrd_tail_last = lrd_spectrum[length(lrd_spectrum)]
+  lrd_wave_last = lrd_wave[length(lrd_wave)]
   ## put Rayleigh Jeans tail to extrapolate
-  RJ_wave = 10^seq(3, 8, 0.0001)
-  RJ_tail = 10^(log10(lrd_tail_norm) + lrd_spectrum_slope*(log10(RJ_wave) - log10(lrd_tail_norm)))
+  RJ_wave = 10^seq(3, 8, 1.0)
+  RJ_tail = 10^(log10(lrd_tail_last) + lrd_spectrum_slope*(log10(RJ_wave) - log10(lrd_wave_last)))
 
   agn_spectrum = c(
     lrd_spectrum,
-    RJ_tail[RJ_wave > lrd_wave[length(lrd_wave)]]
+    RJ_tail[RJ_wave > lrd_wave_last]
   )
   waveout = c(
     lrd_wave,
-    RJ_wave[RJ_wave > lrd_wave[length(lrd_wave)]]
+    RJ_wave[RJ_wave > lrd_wave_last]
   )
 
   agn_atten = CF_atten(
