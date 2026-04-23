@@ -67,16 +67,16 @@ SKIRTOR_interp = function(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, p = 1,
 
 }
 
-LRDBB_interp = function(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+LRDBB_interp = function(lum = 1e+44, teff = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
                       LRDBBSKIRTOR = NULL){
   
   if(is.null(LRDBBSKIRTOR)){
     data('LRDBBSKIRTOR', envir = environment())
   }
   
-  wave = LRD$Wave ## Ang
+  wave = LRDBBSKIRTOR$Wave ## Ang
   
-  BB = blackbody_norm(wave = wave, Temp = temp, norm = 1) ## thermal dense gas distribution 
+  BB = blackbody_norm(wave = wave, Temp = teff, norm = 1) ## thermal dense gas distribution 
   
   balmer_break = 1 / (1 + exp(-1 * (wave - 3646)))
   BB_balmer_break = BB * balmer_break
@@ -112,7 +112,7 @@ LRDBB_interp = function(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40,
   return(data.frame(wave = out$wave, lum = out$flux * lum))
 }
 
-LIU_interp = function(lum = 1e+44, temp = 5000, logg = -2.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1, LRDLIU = NULL){
+LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1, LRDLIU = NULL){
 
   if(is.null(LRDLIU)){
     data('LRDLIU', envir = environment())
@@ -120,7 +120,7 @@ LIU_interp = function(lum = 1e+44, temp = 5000, logg = -2.0, taV = 1, powV = -0.
   
   lrd_wave = LRDLIU$Wave ## Ang
   
-  teffmix = interp_quick(temp, LRDLIU$Teff)
+  teffmix = interp_quick(teff, LRDLIU$Teff)
   loggmix = interp_quick(logg, LRDLIU$logg)
   
   slice = LRDLIU$Aspec[c(teffmix[1:2]), c(loggmix[1:2]), ]
@@ -132,36 +132,20 @@ LIU_interp = function(lum = 1e+44, temp = 5000, logg = -2.0, taV = 1, powV = -0.
   tempmat = matrix(as.numeric(slice), 4, length(lrd_wave))
   lrd_spectrum = (colSums(tempmat * weights))
   
-  # lrd_spectrum_slope = mean(tail(diff(log10(lrd_spectrum))/diff(log10(lrd_wave)), 10))
   lrd_spectrum_slope = -4
-  
+  lrd_tail_norm = lrd_spectrum[length(lrd_spectrum)]
   ## put Rayleigh Jeans tail to extrapolate
   RJ_wave = 10^seq(3, 8, 0.0001)
-  RJ_tail = 10^(log10(tail(lrd_spectrum, 1)) + lrd_spectrum_slope*(log10(RJ_wave) - log10(tail(lrd_wave,1))))
-  # RJ_tail = blackbody_norm(RJ_wave, Temp = temp)
-  
+  RJ_tail = 10^(log10(lrd_tail_norm) + lrd_spectrum_slope*(log10(RJ_wave) - log10(lrd_tail_norm)))
+
   agn_spectrum = c(
     lrd_spectrum,
-    RJ_tail[RJ_wave > tail(lrd_wave,1)]
+    RJ_tail[RJ_wave > lrd_wave[length(lrd_wave)]]
   )
   waveout = c(
     lrd_wave,
-    RJ_wave[RJ_wave > tail(lrd_wave,1)]
+    RJ_wave[RJ_wave > lrd_wave[length(lrd_wave)]]
   )
-  # magplot(
-  #   waveout, agn_spectrum,
-  #   log = "xy",
-  #   type = "l",
-  #   # xlim = c(1e4, 1e5),
-  #   # ylim = c(1e-7, 1e-5),
-  #   lwd = 2
-  # )
-  # lines(
-  #   lrd_wave, lrd_spectrum, col = "red"
-  # )
-  # lines(
-  #   RJ_wave, RJ_tail, col = "purple"
-  # )
 
   agn_atten = CF_atten(
     wave = waveout,
@@ -189,22 +173,6 @@ LIU_interp = function(lum = 1e+44, temp = 5000, logg = -2.0, taV = 1, powV = -0.
     flux2 = dust_emit_norm,
     extrap = 0
   )
-  
-  # magplot(
-  #   waveout, agn_spectrum,
-  #   log = "xy",
-  #   type = "l",
-  #   xlim = c(1e2, 1e6),
-  #   ylim = c(1e-15, 1e-3),
-  #   lwd = 2
-  # )
-  # lines(
-  #   waveout, agn_spectrum
-  # )
-  # lines(
-  #   out$wave, out$flux, col = "blue"
-  # )
 
   return(data.frame(wave = out$wave, lum = out$flux * lum))
-  # return(data.frame(wave = waveout, lum = agn_spectrum * lum))
 }

@@ -3,6 +3,7 @@
 \alias{Fritz_interp}
 \alias{SKIRTOR_interp}
 \alias{LRDBB_interp}
+\alias{LRDLIU_interp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Interpolate the Fritz (2006), SKIRTOR (2016), LRD blackbody and LRD Liu (2026, in prep) AGN Templates
@@ -16,14 +17,16 @@ Fritz_interp(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, al = 4, be = -0.5,
 
 SKIRTOR_interp(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
   SKIRTOR = NULL)
-}
-
-LRDBB_interp(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+  
+LRDBB_interp(lum = 1e+44, teff = 5000, taV = 1, powV = -0.7, 
+  ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
   LRDBBSKIRTOR = NULL)
-}
-LRDLIU_interp(lum = 1e+44, temp = 5000, logg = -2.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+  
+LRDLIU_interp(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, 
+  powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
   LRDLIU = NULL)
 }
+
 \arguments{
   \item{lum}{
 Numeric scalar; AGN bolometric luminosity in erg/s. This is of the illuminating accretion source, so actual observed output will vary depending on the geometry of the dust torus.
@@ -52,17 +55,17 @@ Numeric scalar; Index for radial density gradient.
   \item{q}{
 Numeric scalar; Index for angular density gradient.
 }
-  \item{temp}{
+  \item{teff}{
 Numeric scalar; Effective temperature [K] of the LRD atmosphere.
 }
   \item{logg}{
 Numeric scalar; Log10 of surface gravity of LRD atmospher in cm s^-2.
 }
   \item{taV}{
-Numeric scalar; V-band optical depth for LRD dust with \code{\link{CF00}} model.
+Numeric scalar; V-band optical depth for LRD dust with \code{\link{CF}} model.
 }
   \item{powV}{
-Numeric scalar; Power-law for optical depth for LRD dust with \code{\link{CF00}} model.
+Numeric scalar; Power-law for optical depth for LRD dust with \code{\link{CF}} model.
 }
   \item{Fritz}{
 The \option{Fritz} data. Providing this directly reduces disk IO since it will use the copy already loaded into RAM. If not provided it will load the data from disk.
@@ -126,7 +129,9 @@ lines(LRDBB_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "red")
 lines(LRDLIU_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "purple")
 
 magbar('topright', range=c(0,90), col=colvec, labN=3, prettybase=30, title='an (Deg)')
-legend('bottomleft', legend=c('SKIRTOR', 'Fritz', 'LRDBB+SKIRTOR', 'LRDLIU+SKIRTOR), lty=c(1,2,1,1), col=c("black", "black", "red", "purple"))
+   legend('bottomleft', 
+   legend=c('SKIRTOR', 'Fritz', 'LRDBB+SKIRTOR', 'LRDLIU+SKIRTOR), 
+   lty=c(1,2,1,1), col=c("black", "black", "red", "purple"))
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
