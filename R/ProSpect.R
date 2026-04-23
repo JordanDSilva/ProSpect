@@ -44,6 +44,8 @@ ProSpectSED = function(SFH = SFHfunc,
                           AGNbe = -0.5,
                           AGNp = 1,
                           AGNq = 1,
+                          AGNtemp = 5000,
+                          AGNlogg = -2.0,
                           Eb = 0,
                           L0 = 2175.8,
                           LFWHM = 470,
@@ -174,7 +176,9 @@ ProSpectSED = function(SFH = SFHfunc,
     }
 
     if(inherits(AGN, 'Fritz') |
-       inherits(AGN, 'SKIRTOR')) {
+       inherits(AGN, 'SKIRTOR') | 
+       inherits(AGN, 'LRD') | 
+       inherits(AGN, 'LRDLIU')) {
       #Use new model
       if (inherits(AGN, 'Fritz')) {
         AGN = Fritz_interp(
@@ -197,6 +201,35 @@ ProSpectSED = function(SFH = SFHfunc,
           rm = AGNrm,
           an = AGNan,
           SKIRTOR = AGN
+        )
+      } else if (inherits(AGN, 'LRD')){
+        AGN = LRD_interp(
+          lum = AGNlum,
+          temp = AGNtemp,
+          taV = tau_AGN,
+          powV = pow_AGN,
+          ta = AGNta,
+          p = AGNp,
+          q = AGNq,
+          ct = AGNct,
+          rm = AGNrm,
+          an = AGNan,
+          LRD = AGN
+        )
+      }else if (inherits(AGN, 'LRDLIU')){
+        AGN = LIU_interp(
+          lum = AGNlum,
+          temp = AGNtemp,
+          logg = AGNlogg,
+          taV = tau_AGN,
+          powV = pow_AGN,
+          ta = AGNta,
+          p = AGNp,
+          q = AGNq,
+          ct = AGNct,
+          rm = AGNrm,
+          an = AGNan,
+          LRDLIU = LRDLIU
         )
       }
 
