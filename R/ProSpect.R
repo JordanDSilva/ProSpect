@@ -44,7 +44,7 @@ ProSpectSED = function(SFH = SFHfunc,
                           AGNbe = -0.5,
                           AGNp = 1,
                           AGNq = 1,
-                          AGNtemp = 5000,
+                          AGNteff = 5000,
                           AGNlogg = -2.0,
                           Eb = 0,
                           L0 = 2175.8,
@@ -205,7 +205,7 @@ ProSpectSED = function(SFH = SFHfunc,
       } else if (inherits(AGN, 'LRDBBSKIRTOR')){
         AGN = LRDBB_interp(
           lum = AGNlum,
-          temp = AGNtemp,
+          teff = AGNteff,
           taV = tau_AGN,
           powV = pow_AGN,
           ta = AGNta,
@@ -217,9 +217,9 @@ ProSpectSED = function(SFH = SFHfunc,
           LRD = AGN
         )
       }else if (inherits(AGN, 'LRDLIU')){
-        AGN = LIU_interp(
+        AGN = LRDLIU_interp(
           lum = AGNlum,
-          temp = AGNtemp,
+          teff = AGNteff,
           logg = AGNlogg,
           taV = tau_AGN,
           powV = pow_AGN,
@@ -229,7 +229,7 @@ ProSpectSED = function(SFH = SFHfunc,
           ct = AGNct,
           rm = AGNrm,
           an = AGNan,
-          LRDLIU = LRDLIU
+          LRDLIU = AGN
         )
       }
 
