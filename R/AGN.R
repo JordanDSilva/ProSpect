@@ -117,8 +117,8 @@ LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = 
   if(is.null(LRDLIU)){
     data('LRDLIU', envir = environment())
   }
-  
-  lrd_wave = LRDLIU$Wave ## Ang
+
+  lrd_wave_raw = LRDLIU$Wave ## Ang
   
   teffmix = interp_quick(teff, LRDLIU$Teff)
   loggmix = interp_quick(logg, LRDLIU$logg)
@@ -129,34 +129,27 @@ LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = 
   weights = weights * rep(teffmix[3:4], each = 1, times = 2)
   weights = weights * rep(loggmix[3:4], each = 2, times = 1)
   
-  tempmat = matrix(as.numeric(slice), 4, length(lrd_wave))
-  lrd_spectrum = (colSums(tempmat * weights))
+  tempmat = matrix(as.numeric(slice), 4, length(lrd_wave_raw))
+  lrd_spectrum_raw = (colSums(tempmat * weights))
   
-  lrd_spectrum_slope = -4
-  lrd_tail_last = lrd_spectrum[length(lrd_spectrum)]
-  lrd_wave_last = lrd_wave[length(lrd_wave)]
-  ## put Rayleigh Jeans tail to extrapolate
-  RJ_wave = 10^seq(3.0, 8.0, 1.0)
-  RJ_tail = 10^(log10(lrd_tail_last) + lrd_spectrum_slope*(log10(RJ_wave) - log10(lrd_wave_last)))
-
-  agn_spectrum = c(
-    lrd_spectrum,
-    RJ_tail[RJ_wave > lrd_wave_last]
-  )
-  waveout = c(
-    lrd_wave,
-    RJ_wave[RJ_wave > lrd_wave_last]
+  lrd_spectrum_rebin = specReBin(
+    wave = lrd_wave_raw,
+    flux = lrd_spectrum_raw,
+    bin = 1e-3
   )
 
-  agn_atten = CF_atten(
-    wave = waveout,
-    flux = agn_spectrum,
+  lrd_wave = lrd_spectrum_rebin$wave
+  lrd_spectrum = lrd_spectrum_rebin$flux
+  
+  lrd_atten = CF_atten(
+    wave = lrd_wave,
+    flux = lrd_spectrum,
     tau = taV,
     pow = powV
   ) ## Attenuate by dust along LOS
 
   dust_emit = SKIRTOR_interp(
-    lum = agn_atten$total_atten,
+    lum = lrd_atten$total_atten,
     ct = ct,
     rm = rm,
     an = an,
@@ -165,15 +158,58 @@ LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = 
     q = q,
     SKIRTOR = LRDLIU$SKIRTORDUST
   ) ## Re-emit in the IR
-  dust_emit_norm = dust_emit$lum * agn_atten$total_atten / sum(c(0, diff(dust_emit$wave)) * dust_emit$lum)
+  dust_emit_norm = dust_emit$lum / sum(c(0, diff(dust_emit$wave)) * dust_emit$lum) * lrd_atten$total_atten ## normalise to total attenuated energy
 
-  out = addspec(
-    wave1 = waveout,
-    flux1 = agn_atten$flux,
+  agn_spectrum = addspec(
+    wave1 = lrd_wave,
+    flux1 = lrd_atten$flux,
     wave2 = dust_emit$wave,
-    flux2 = dust_emit_norm,
+    flux2 = dust_emit$lum,
     extrap = 0
   )
+  
+  # magplot(
+  #   NA, 
+  #   xlim = c(100, 1e8),
+  #   ylim = c(1e-10, 1),
+  #   log = "xy"
+  # )
+  # lines(
+  #   lrd_wave,
+  #   lrd_spectrum, 
+  #   col = "cornflowerblue", 
+  #   lwd = 2, 
+  #   lty = 2
+  # )
+  # lines(
+  #   lrd_wave,
+  #   lrd_atten$flux,
+  #   col = "blue", 
+  #   lty = 2, 
+  #   lwd = 2
+  # )
+  # lines(
+  #   dust_emit$wave,
+  #   dust_emit$lum, 
+  #   col = "red", 
+  #   lwd = 2
+  # )
+  # lines(
+  #   agn_spectrum$wave, 
+  #   agn_spectrum$flux
+  # )
 
-  return(data.frame(wave = out$wave, lum = out$flux * lum))
+  return(data.frame(wave = agn_spectrum$wave, lum = agn_spectrum$flux * lum))
 }
+
+# lum = 1
+# teff = 2500
+# logg = -2
+# taV = 0.5
+# powV = -0.7
+# ct = 160
+# rm = 60
+# an = 30 
+# ta = 1
+# p = 1 
+# q = 0

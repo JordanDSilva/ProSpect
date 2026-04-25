@@ -177,7 +177,7 @@ ProSpectSED = function(SFH = SFHfunc,
 
     if(inherits(AGN, 'Fritz') |
        inherits(AGN, 'SKIRTOR') | 
-       inherits(AGN, 'LRD') | 
+       inherits(AGN, 'LRDBBSKIRTOR') | 
        inherits(AGN, 'LRDLIU')) {
       #Use new model
       if (inherits(AGN, 'Fritz')) {
