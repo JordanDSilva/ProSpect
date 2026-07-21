@@ -67,8 +67,12 @@ SKIRTOR_interp = function(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, p = 1,
 
 }
 
-LRD_interp = function(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
-                      LRD = NULL){
+LRDBB_interp = function(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+                      LRDBBSKIRTOR = NULL){
+  
+  if(is.null(LRDBBSKIRTOR)){
+    data('LRDBBSKIRTOR', envir = environment())
+  }
   
   wave = LRD$Wave ## Ang
   
@@ -93,7 +97,7 @@ LRD_interp = function(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40, r
     ta = ta, 
     p = p,
     q = q,
-    SKIRTOR = LRD
+    SKIRTOR = LRDBBSKIRTOR
   ) ## Re-emit in the IR
   
   dust_emit_norm = dust_emit$lum * BB_atten$total_atten / sum(c(0, diff(wave)) * dust_emit$lum)

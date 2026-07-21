@@ -202,8 +202,8 @@ ProSpectSED = function(SFH = SFHfunc,
           an = AGNan,
           SKIRTOR = AGN
         )
-      } else if (inherits(AGN, 'LRD')){
-        AGN = LRD_interp(
+      } else if (inherits(AGN, 'LRDBBSKIRTOR')){
+        AGN = LRDBB_interp(
           lum = AGNlum,
           temp = AGNtemp,
           taV = tau_AGN,

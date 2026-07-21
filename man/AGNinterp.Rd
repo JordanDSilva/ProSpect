@@ -2,9 +2,10 @@
 \alias{AGNinterp}
 \alias{Fritz_interp}
 \alias{SKIRTOR_interp}
+\alias{LRDBB_interp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Interpolate the Fritz (2006) and SKIRTOR (2016) AGN Templates
+Interpolate the Fritz (2006), SKIRTOR (2016), LRD blackbody and LRD Liu (2026, in prep) AGN Templates
 }
 \description{
 Interpolates between non-computed values of the Fritz 2006 AGN Templates using a mixture of schemes. This is similar to the approach used for \code{\link{Dale_interp}}. The model is much too complex to summarise here, so interested readers should refer to the source papers if using this function for science.
@@ -15,6 +16,13 @@ Fritz_interp(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, al = 4, be = -0.5,
 
 SKIRTOR_interp(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
   SKIRTOR = NULL)
+}
+
+LRDBB_interp(lum = 1e+44, temp = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+  LRDBBSKIRTOR = NULL)
+}
+LRDLIU_interp(lum = 1e+44, temp = 5000, logg = -2.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+  LRDLIU = NULL)
 }
 \arguments{
   \item{lum}{
@@ -44,11 +52,29 @@ Numeric scalar; Index for radial density gradient.
   \item{q}{
 Numeric scalar; Index for angular density gradient.
 }
+  \item{temp}{
+Numeric scalar; Effective temperature [K] of the LRD atmosphere.
+}
+  \item{logg}{
+Numeric scalar; Log10 of surface gravity of LRD atmospher in cm s^-2.
+}
+  \item{taV}{
+Numeric scalar; V-band optical depth for LRD dust with \code{\link{CF00}} model.
+}
+  \item{powV}{
+Numeric scalar; Power-law for optical depth for LRD dust with \code{\link{CF00}} model.
+}
   \item{Fritz}{
 The \option{Fritz} data. Providing this directly reduces disk IO since it will use the copy already loaded into RAM. If not provided it will load the data from disk.
 }
   \item{SKIRTOR}{
 The \option{SKIRTOR} data. Providing this directly reduces disk IO since it will use the copy already loaded into RAM. If not provided it will load the data from disk.
+}
+  \item{LRDBBSKIRTOR}{
+The \option{LRDBBSKIRTOR} data. Providing this directly reduces disk IO since it will use the copy already loaded into RAM. If not provided it will load the data from disk.
+}
+  \item{LRDLIU}{
+The \option{LRDLIU} data. Providing this directly reduces disk IO since it will use the copy already loaded into RAM. If not provided it will load the data from disk.
 }
 }
 \details{
@@ -76,13 +102,14 @@ Numeric Matrix; first column is observed wavelength (Angstroms) and second colum
 Feltre et al, 2012, MNRAS, 426, 120 \cr
 Fritz et al, 2006, MNRAS, 366, 767 \cr
 Stalevski et al, 2012, MNRAS, 420, 2756 \cr
-Stalevski et al, 2016, MNRAS, 458, 2288
+Stalevski et al, 2016, MNRAS, 458, 2288 \cr
+Liu et al, 2026, in prep
 }
 \author{
 Aaron Robotham & Adam Marshall
 }
 \seealso{
-\code{\link[ProSpectData:Fritz]{Fritz}}, \code{\link[ProSpectData:SKIRTOR]{SKIRTOR}}
+\code{\link{Fritz}}, \code{\link{SKIRTOR}}, \code{\link{LRDBBSKIRTOR}}, \code{\link{LRDLIU}}
 }
 \examples{
 \dontrun{
@@ -95,12 +122,16 @@ for(i in 1:10){
   lines(Fritz_interp(an=(i-1)*10), col=colvec[i], lty=2, lwd=2)
   lines(SKIRTOR_interp(an=(i-1)*10), col=colvec[i], lwd=2)
 }
+lines(LRDBB_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "red")
+lines(LRDLIU_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "purple")
 
 magbar('topright', range=c(0,90), col=colvec, labN=3, prettybase=30, title='an (Deg)')
-legend('bottomleft', legend=c('SKIRTOR', 'Fritz'), lty=c(1,2))
+legend('bottomleft', legend=c('SKIRTOR', 'Fritz', 'LRDBB+SKIRTOR', 'LRDLIU+SKIRTOR), lty=c(1,2,1,1), col=c("black", "black", "red", "purple"))
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ Fritz }% use one of  RShowDoc("KEYWORDS")
 \keyword{ SKIRTOR }% use one of  RShowDoc("KEYWORDS")
+\keyword{ LRDBBSKIRTOR }% use one of  RShowDoc("KEYWORDS")
+\keyword{ LRDLIU }% use one of  RShowDoc("KEYWORDS")
