@@ -71,7 +71,7 @@ Object; optional. Pass in the spectral library directly. Must be one of \code{\l
 Object or scalar logical; optional. Pass in the Dale dust library \code{\link[ProSpectData:Dale_NormTot]{Dale_NormTot}} directly (otherwise will run, but not work correctly). Default of NULL will load the \code{\link[ProSpectData:Dale_NormTot]{Dale_NormTot}} library, but faster to pass it in if being used for e.g. fitting. If FALSE it will not re-emit the attenuated light in the MIR/FIR using Dale templates. This might be desired if the range of interest is purely the UV-NIR and you want faster generation/fitting (since the re-emitted dust will not be notable until at least the MIR).
 }
   \item{AGN}{
-Object; optional. Pass in the AGN template to use. Must be one of \code{\link{AGN_UnOb}}, \code{\link{AGN_UnOb_Sparse}}, \code{\link[ProSpectData:Fritz]{Fritz}}, or \code{\link[ProSpectData:SKIRTOR]{SKIRTOR}}. These objects have classes attached, when ensures the correct AGN code is executed (so users should not simply try to load their own specific AGN model).
+Object; optional. Pass in the AGN template to use. Must be one of \code{\link{AGN_UnOb}}, \code{\link{AGN_UnOb_Sparse}}, \code{\link[ProSpectData:Fritz]{Fritz}}, \code{\link[ProSpectData:SKIRTOR]{SKIRTOR}}, \code{\link{LRDBBSKIRTOR}}, or \code{\link{LRDLIU}}. These objects have classes attached, when ensures the correct AGN code is executed (so users should not simply try to load their own specific AGN model).
 }
 
   \item{filtout}{
@@ -163,6 +163,12 @@ Numeric scalar; Index for the radial density gradient in the SKIRTOR AGN model.
   }
   \item{AGNq}{
 Numeric scalar; Index for the angular density gradient in the SKIRTOR AGN model.
+  }
+  \item{AGNtemp}{
+Numeric scalar; Effective temperature in Kelvin of LRD atmosphere.
+  }
+  \item{AGNlogg}{
+Numeric scalar; Log10 surface gravity in cm s^-2 of LRD atmosphere.
   }
   \item{parm}{
 Numeric vector; arguments to be passed to \code{ProSpectSED}.
