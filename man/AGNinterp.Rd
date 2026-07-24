@@ -2,7 +2,7 @@
 \alias{AGNinterp}
 \alias{Fritz_interp}
 \alias{SKIRTOR_interp}
-\alias{LRDBB_interp}
+\alias{LRDMBB_interp}
 \alias{LRDLIU_interp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
