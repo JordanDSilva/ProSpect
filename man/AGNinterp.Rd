@@ -6,7 +6,7 @@
 \alias{LRDLIU_interp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Interpolate the Fritz (2006), SKIRTOR (2016), LRD blackbody and LRD Liu (2026, in prep) AGN Templates
+Interpolate the Fritz (2006), SKIRTOR (2016), LRD greybody and LRD Liu (2026, in prep) AGN Templates
 }
 \description{
 Interpolates between non-computed values of the Fritz 2006 AGN Templates using a mixture of schemes. This is similar to the approach used for \code{\link{Dale_interp}}. The model is much too complex to summarise here, so interested readers should refer to the source papers if using this function for science.
@@ -18,7 +18,7 @@ Fritz_interp(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, al = 4, be = -0.5,
 SKIRTOR_interp(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
   SKIRTOR = NULL)
   
-LRDBB_interp(lum = 1e+44, teff = 5000, taV = 1, powV = -0.7, 
+LRDMBB_interp(lum = 1e+44, teff = 5000, beta = 0, taV = 1, powV = -0.7, 
   ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
   LRDBBSKIRTOR = NULL)
   
@@ -57,6 +57,9 @@ Numeric scalar; Index for angular density gradient.
 }
   \item{teff}{
 Numeric scalar; Effective temperature [K] of the LRD atmosphere.
+}
+  \item{beta}{
+Numeric scalar; power-law index of the greybody for the LRD atmosphere. beta=0 is a blackbody spectrum.
 }
   \item{logg}{
 Numeric scalar; Log10 of surface gravity of LRD atmospher in cm s^-2.
@@ -125,7 +128,7 @@ for(i in 1:10){
   lines(Fritz_interp(an=(i-1)*10), col=colvec[i], lty=2, lwd=2)
   lines(SKIRTOR_interp(an=(i-1)*10), col=colvec[i], lwd=2)
 }
-lines(LRDBB_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "red")
+lines(LRDMBB_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "red")
 lines(LRDLIU_interp(an=(i-1)*10), col=colvec[i], lwd=2, col = "purple")
 
 magbar('topright', range=c(0,90), col=colvec, labN=3, prettybase=30, title='an (Deg)')
