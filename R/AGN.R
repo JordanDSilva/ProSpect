@@ -67,8 +67,8 @@ SKIRTOR_interp = function(lum = 1e+44, ct = 40, rm = 60, an = 30, ta = 1, p = 1,
 
 }
 
-LRDBB_interp = function(lum = 1e+44, teff = 5000, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
-                      LRDBBSKIRTOR = NULL){
+LRDMBB_interp = function(lum = 1e+44, teff = 5000, beta = 0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1,
+                        LRDBBSKIRTOR = NULL){
   
   if(is.null(LRDBBSKIRTOR)){
     data('LRDBBSKIRTOR', envir = environment())
@@ -76,7 +76,7 @@ LRDBB_interp = function(lum = 1e+44, teff = 5000, taV = 1, powV = -0.7, ct = 40,
   
   wave = LRDBBSKIRTOR$Wave ## Ang
   
-  BB = blackbody_norm(wave = wave, Temp = teff, norm = 1) ## thermal dense gas distribution 
+  BB = greybody_norm(wave = wave, Temp = teff, beta = beta, norm = 1) ## thermal dense gas distribution 
   
   balmer_break = 1 / (1 + exp(-1 * (wave - 3646)))
   BB_balmer_break = BB * balmer_break
@@ -112,7 +112,8 @@ LRDBB_interp = function(lum = 1e+44, teff = 5000, taV = 1, powV = -0.7, ct = 40,
   return(data.frame(wave = out$wave, lum = out$flux * lum))
 }
 
-LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1, LRDLIU = NULL){
+LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1, 
+                         LRDLIU = NULL){
 
   if(is.null(LRDLIU)){
     data('LRDLIU', envir = environment())
@@ -201,15 +202,3 @@ LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = 
 
   return(data.frame(wave = agn_spectrum$wave, lum = agn_spectrum$flux * lum))
 }
-
-# lum = 1
-# teff = 2500
-# logg = -2
-# taV = 0.5
-# powV = -0.7
-# ct = 160
-# rm = 60
-# an = 30 
-# ta = 1
-# p = 1 
-# q = 0
