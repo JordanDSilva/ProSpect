@@ -202,3 +202,94 @@ LRDLIU_interp = function(lum = 1e+44, teff = 5000, logg = -2.0, taV = 1, powV = 
 
   return(data.frame(wave = agn_spectrum$wave, lum = agn_spectrum$flux * lum))
 }
+
+SIROCCO_interp = function(lum = 1e+44, mdot = 1, Zagn = -1.0, taV = 1, powV = -0.7, ct = 40, rm = 60, an = 30, ta = 1, p = 1, q = 1, 
+                         SIROCCO = NULL){
+  
+  if(is.null(SIROCCO)){
+    data('SIROCCO', envir = environment())
+  }
+  
+  lrd_wave_raw = SIROCCO$Wave ## Ang
+  
+  mdotmix = interp_quick(mdot, SIROCCO$mdot)
+  Zmix = interp_quick(Zagn, SIROCCO$Z)
+  
+  slice = SIROCCO$Aspec[c(mdotmix[1:2]), c(Zmix[1:2]), ]
+  
+  weights = rep(1, 4)
+  weights = weights * rep(mdotmix[3:4], each = 1, times = 2)
+  weights = weights * rep(Zmix[3:4], each = 2, times = 1)
+  
+  tempmat = matrix(as.numeric(slice), 4, length(lrd_wave_raw))
+  lrd_spectrum_raw = (colSums(tempmat * weights))
+  
+  lrd_spectrum_rebin = specReBin(
+    wave = lrd_wave_raw,
+    flux = lrd_spectrum_raw,
+    bin = 1e-3
+  )
+  
+  lrd_wave = lrd_spectrum_rebin$wave
+  lrd_spectrum = lrd_spectrum_rebin$flux
+  
+  lrd_atten = CF_atten(
+    wave = lrd_wave,
+    flux = lrd_spectrum,
+    tau = taV,
+    pow = powV
+  ) ## Attenuate by dust along LOS
+  
+  dust_emit = SKIRTOR_interp(
+    lum = lrd_atten$total_atten,
+    ct = ct,
+    rm = rm,
+    an = an,
+    ta = ta,
+    p = p,
+    q = q,
+    SKIRTOR = SIROCCO$SKIRTORDUST
+  ) ## Re-emit in the IR
+  dust_emit_norm = dust_emit$lum / sum(c(0, diff(dust_emit$wave)) * dust_emit$lum) * lrd_atten$total_atten ## normalise to total attenuated energy
+  
+  agn_spectrum = addspec(
+    wave1 = lrd_wave,
+    flux1 = lrd_atten$flux,
+    wave2 = dust_emit$wave,
+    flux2 = dust_emit$lum,
+    extrap = 0
+  )
+  
+  # magplot(
+  #   NA,
+  #   xlim = c(100, 1e8),
+  #   ylim = c(1e-10, 1),
+  #   log = "xy"
+  # )
+  # lines(
+  #   lrd_wave,
+  #   lrd_spectrum,
+  #   col = "cornflowerblue",
+  #   lwd = 2,
+  #   lty = 2
+  # )
+  # lines(
+  #   lrd_wave,
+  #   lrd_atten$flux,
+  #   col = "blue",
+  #   lty = 2,
+  #   lwd = 2
+  # )
+  # lines(
+  #   dust_emit$wave,
+  #   dust_emit$lum,
+  #   col = "red",
+  #   lwd = 2
+  # )
+  # lines(
+  #   agn_spectrum$wave,
+  #   agn_spectrum$flux
+  # )
+
+  return(data.frame(wave = agn_spectrum$wave, lum = agn_spectrum$flux * lum))
+}
