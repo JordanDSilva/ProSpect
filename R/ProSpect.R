@@ -173,6 +173,8 @@ ProSpectSED = function(SFH = SFHfunc,
     AGN = NULL
     dustlum_AGN = 0
     dustmass_AGN = 0
+    print("du bist gut genug")
+    
   } else {
     if(isFALSE(Dale)){
       stop('Dale cannot be FALSE when using an AGN model!')
@@ -303,7 +305,77 @@ ProSpectSED = function(SFH = SFHfunc,
         )
       }
       colnames(AGN)[2] = 'lum'
-    } else{
+    } else if(is.function(AGN)){
+      # named function parms from ProSpectSED's own formals
+      agn_formal_parms = list(
+        AGNlum = AGNlum, AGNct = AGNct, AGNrm = AGNrm, AGNan = AGNan,
+        AGNta = AGNta, AGNal = AGNal, AGNbe = AGNbe, AGNp = AGNp, AGNq = AGNq,
+        AGNteff = AGNteff, AGNbeta = AGNbeta, AGNlogg = AGNlogg,
+        AGNmdot = AGNmdot, AGNZ = AGNZ
+      )
+      
+      all_parms = c(agn_formal_parms, list(...))
+      
+      accepted = names(formals(AGN))
+      if(!"..." %in% accepted){
+        # only pass what the user's function actually declares
+        all_parms = all_parms[names(all_parms) %in% accepted]
+      }
+      
+      AGN = do.call(AGN, all_parms)
+  
+      dustlum_AGN = NA
+      dustmass_AGN = NA
+      AGN = atten_emit(
+        wave = AGN$wave,
+        flux = AGN$lum * .erg_to_lsol,
+        tau = tau_screen,
+        pow = pow_screen,
+        alpha_SF = alpha_SF_screen,
+        Dale = Dale,
+        Dale_M2L_func = Dale_M2L_func,
+        waveout = waveout,
+        Eb = Eb,
+        L0 = L0,
+        LFWHM = LFWHM
+      )
+      if (!is.null(Dale_M2L_func) & returnall) {
+        dustlum_screen = dustlum_screen + AGN$total_atten
+        dustmass_screen = dustmass_screen + AGN$dustmass
+      }
+      
+      ## subtracts off AGN contribution to the radio continuum unless you specifically request to add it back
+      AGN$final = radiocont(
+        wave = AGN$final$wave,
+        flux = AGN$final$flux,
+        z = 0,
+        Te = Te_AGN,
+        ff_frac = ff_frac_AGN,
+        ff_power = ff_power_AGN,
+        sy_power = sy_power_AGN,
+        wavesamp = seq(6, waveout_max, by = 0.1),
+        flux_in = 'wave',
+        flux_out = 'wave',
+        subtractonly = !addradio_AGN # whether to add AGN radio or just subtract Dale radio
+      )
+      
+      AGN = AGN$final
+      if (is.null(Final)) {
+        Final = AGN
+      } else if (length(Final$flux) == length(AGN$flux)) {
+        Final = data.frame(wave = Final$wave, flux = Final$flux +
+                             AGN$flux)
+      } else {
+        Final = addspec(
+          wave1 = Final$wave,
+          flux1 = Final$flux,
+          wave2 = AGN$wave,
+          flux2 = AGN$flux
+        )
+      }
+      colnames(AGN)[2] = 'lum'
+      
+    }else{
       #Use old model
       #First we attenuate by the hot torus
       AGN = atten_emit(
